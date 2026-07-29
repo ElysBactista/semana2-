@@ -6,21 +6,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionSolicitudes.Infrastructure;
 
-public class SolicitudService : ISolicitudService
+public class SolicitudService(ApplicationDbContext context) : ISolicitudService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context = context;
 
-    public SolicitudService(ApplicationDbContext context)
+    public async Task<(int Total, IEnumerable<SolicitudDto> Solicitudes)> ObtenerTodasAsync(string? busqueda, int numeroPagina, int tamanoPagina)
     {
-        _context = context;
-    }
+        // 1. Iniciamos la consulta
+        var query = _context.Solicitudes.AsQueryable();
 
-    public async Task<IEnumerable<SolicitudDto>> ObtenerTodasAsync()
-    {
-        return await _context.Solicitudes
-            .Where(s => s.Activo)
-            .Select(s => MapToDto(s))
+        // 2. Aplicamos el filtro de búsqueda si el usuario envió algo
+        if (!string.IsNullOrWhiteSpace(busqueda))
+        {
+            query = query.Where(s => s.Titulo.Contains(busqueda) || s.Solicitante.Contains(busqueda));
+        }
+
+        // 3. Contamos cuántos registros hay en total con ese filtro
+        var totalRegistros = await query.CountAsync();
+
+        // 4. Aplicamos la paginación (Skip y Take)
+        var solicitudesPaginadas = await query
+            .Skip((numeroPagina - 1) * tamanoPagina)
+            .Take(tamanoPagina)
             .ToListAsync();
+
+        // 5. Mapeamos a DTO (Adapta estas propiedades según las que tengas en tu SolicitudDto)
+        // 5. Mapeamos a DTO reutilizando tu método MapToDto que ya tienes abajo
+        var listaDtos = solicitudesPaginadas.Select(MapToDto).ToList();
+        // 6. Devolvemos el total y la lista
+        return (totalRegistros, listaDtos);
     }
 
     public async Task<SolicitudDto?> ObtenerPorIdAsync(int id)

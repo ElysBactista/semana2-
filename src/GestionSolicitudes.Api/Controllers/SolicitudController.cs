@@ -14,10 +14,20 @@ public class SolicitudController(ISolicitudService solicitudService) : Controlle
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    public async Task<IActionResult> ObtenerTodas()
+    public async Task<IActionResult> ObtenerTodas(
+     [FromQuery] string? busqueda,
+     [FromQuery] int numeroPagina = 1,
+     [FromQuery] int tamanoPagina = 10)
     {
-        var solicitudes = await _solicitudService.ObtenerTodasAsync();
-        return Ok(solicitudes);
+        var (Total, Solicitudes) = await _solicitudService.ObtenerTodasAsync(busqueda, numeroPagina, tamanoPagina);
+
+        return Ok(new
+        {
+            TotalRegistros = Total,
+            NumeroPagina = numeroPagina,
+            TamanoPagina = tamanoPagina,
+            Datos = Solicitudes
+        });
     }
 
     [HttpGet("{id}")]
