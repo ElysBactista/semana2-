@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionSolicitudes.Infrastr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionSolicitudes.Api", "src\GestionSolicitudes.Api\GestionSolicitudes.Api.csproj", "{7B72CF27-CCDD-482F-B69C-AAD2177EACCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionSolicitudes.Client", "GestionSolicitudes.Client\GestionSolicitudes.Client.csproj", "{8618FEBC-BA4A-431D-9B8D-EF31E8988BBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{7B72CF27-CCDD-482F-B69C-AAD2177EACCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B72CF27-CCDD-482F-B69C-AAD2177EACCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B72CF27-CCDD-482F-B69C-AAD2177EACCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8618FEBC-BA4A-431D-9B8D-EF31E8988BBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8618FEBC-BA4A-431D-9B8D-EF31E8988BBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8618FEBC-BA4A-431D-9B8D-EF31E8988BBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8618FEBC-BA4A-431D-9B8D-EF31E8988BBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -16,4 +16,5 @@ public class Solicitud
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public DateTime? FechaActualizacion { get; set;}
     public bool Activo { get; set; } = true;
+    public DateTime FechaRegistro { get; set; }
 }

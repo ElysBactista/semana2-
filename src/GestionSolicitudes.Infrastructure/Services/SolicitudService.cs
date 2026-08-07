@@ -4,11 +4,16 @@ using GestionSolicitudes.Domain;
 using GestionSolicitudes.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestionSolicitudes.Infrastructure;
 
-public class SolicitudService(ApplicationDbContext context) : ISolicitudService
+namespace GestionSolicitudes.Infrastructure.Services;
+public class SolicitudService : ISolicitudService
 {
-    private readonly ApplicationDbContext _context = context;
+    private readonly ApplicationDbContext _context;
+
+    public SolicitudService(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<(int Total, IEnumerable<SolicitudDto> Solicitudes)> ObtenerTodasAsync(string? busqueda, int numeroPagina, int tamanoPagina)
     {
@@ -45,7 +50,7 @@ public class SolicitudService(ApplicationDbContext context) : ISolicitudService
         return solicitud != null ? MapToDto(solicitud) : null;
     }
 
-    public async Task<SolicitudDto> CrearAsync(CrearSolicitudDto dto)
+    public Task<SolicitudDto> CrearAsync(CrearSolicitudDto dto)
     {
         var nuevaSolicitud = new Solicitud
         {
@@ -58,9 +63,9 @@ public class SolicitudService(ApplicationDbContext context) : ISolicitudService
         };
 
         _context.Solicitudes.Add(nuevaSolicitud);
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
 
-        return MapToDto(nuevaSolicitud);
+        return Task.FromResult(MapToDto(nuevaSolicitud));
     }
 
     // --- PUT: Editar datos generales ---
@@ -76,7 +81,7 @@ public class SolicitudService(ApplicationDbContext context) : ISolicitudService
         solicitud.Solicitante = dto.Solicitante;
         solicitud.FechaActualizacion = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
         return true;
     }
 
@@ -91,7 +96,7 @@ public class SolicitudService(ApplicationDbContext context) : ISolicitudService
         solicitud.Estado = dto.NuevoEstado;
         solicitud.FechaActualizacion = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
         return true;
     }
 
@@ -106,20 +111,17 @@ public class SolicitudService(ApplicationDbContext context) : ISolicitudService
         solicitud.Activo = false;
         solicitud.FechaActualizacion = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
         return true;
     }
 
-    private static SolicitudDto MapToDto(Solicitud s)
+    private static SolicitudDto MapToDto(Solicitud s) => new()
     {
-        return new SolicitudDto
-        {
-            Id = s.Id,
-            Titulo = s.Titulo,
-            Descripcion = s.Descripcion,
-            Solicitante = s.Solicitante,
-            Estado = s.Estado.ToString(),
-            FechaCreacion = s.FechaCreacion
-        };
-    }
+        Id = s.Id,
+        Titulo = s.Titulo,
+        Descripcion = s.Descripcion,
+        Solicitante = s.Solicitante,
+        Estado = s.Estado,
+        FechaCreacion = s.FechaCreacion
+    };
 }
