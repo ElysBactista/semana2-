@@ -1,5 +1,7 @@
+using CurrieTechnologies.Razor.SweetAlert2;
 using GestionSolicitudes.Client;
 using GestionSolicitudes.Client.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -13,5 +15,12 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<SolicitudClientService>();
+builder.Services.AddSweetAlert2();
+
+// 🔑 AGREGAR ESTAS LÍNEAS PARA LA AUTENTICACIÓN Y LAYOUTS:
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>(provider =>
+    (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>());
 
 await builder.Build().RunAsync();

@@ -17,8 +17,8 @@ public class SolicitudService : ISolicitudService
 
     public async Task<(int Total, IEnumerable<SolicitudDto> Solicitudes)> ObtenerTodasAsync(string? busqueda, int numeroPagina, int tamanoPagina)
     {
-        // 1. Iniciamos la consulta
-        var query = _context.Solicitudes.AsQueryable();
+        // 1. Iniciamos la consulta FILTRANDO SOLO LOS ACTIVOS desde el principio
+        var query = _context.Solicitudes.Where(s => s.Activo).AsQueryable();
 
         // 2. Aplicamos el filtro de búsqueda si el usuario envió algo
         if (!string.IsNullOrWhiteSpace(busqueda))
@@ -35,13 +35,12 @@ public class SolicitudService : ISolicitudService
             .Take(tamanoPagina)
             .ToListAsync();
 
-        // 5. Mapeamos a DTO (Adapta estas propiedades según las que tengas en tu SolicitudDto)
         // 5. Mapeamos a DTO reutilizando tu método MapToDto que ya tienes abajo
         var listaDtos = solicitudesPaginadas.Select(MapToDto).ToList();
+
         // 6. Devolvemos el total y la lista
         return (totalRegistros, listaDtos);
     }
-
     public async Task<SolicitudDto?> ObtenerPorIdAsync(int id)
     {
         var solicitud = await _context.Solicitudes
@@ -72,7 +71,7 @@ public class SolicitudService : ISolicitudService
     public async Task<bool> ActualizarAsync(int id, ActualizarSolicitudDto dto)
     {
         var solicitud = await _context.Solicitudes
-            .FirstOrDefaultAsync(s => s.Id == id && s.Activo);
+            .FirstOrDefaultAsync(s => s.Id == id);
 
         if (solicitud == null) return false;
 
@@ -89,7 +88,7 @@ public class SolicitudService : ISolicitudService
     public async Task<bool> CambiarEstadoAsync(int id, ActualizarEstadoDto dto)
     {
         var solicitud = await _context.Solicitudes
-            .FirstOrDefaultAsync(s => s.Id == id && s.Activo);
+            .FirstOrDefaultAsync(s => s.Id == id);
 
         if (solicitud == null) return false;
 
@@ -104,7 +103,7 @@ public class SolicitudService : ISolicitudService
     public async Task<bool> DesactivarAsync(int id)
     {
         var solicitud = await _context.Solicitudes
-            .FirstOrDefaultAsync(s => s.Id == id && s.Activo);
+            .FirstOrDefaultAsync(s => s.Id == id);
 
         if (solicitud == null) return false;
 
@@ -124,4 +123,22 @@ public class SolicitudService : ISolicitudService
         Estado = s.Estado,
         FechaCreacion = s.FechaCreacion
     };
+
+    public async Task<DashboardDto> ObtenerResumenDashboardAsync(DateTime fechaInicio, DateTime fechaFin)
+    {
+        var query = _context.Solicitudes
+            .Where(s => s.Activo && s.FechaCreacion.Date >= fechaInicio.Date && s.FechaCreacion.Date <= fechaFin.Date);
+
+        var resumen = new DashboardDto
+        {
+            TotalSolicitudes = await query.CountAsync(),
+            Pendientes = await query.CountAsync(s => s.Estado == EstadoSolicitud.Pendiente), // 1
+            EnProceso = await query.CountAsync(s => s.Estado == EstadoSolicitud.EnProceso),   // 2
+            Aprobadas = await query.CountAsync(s => s.Estado == EstadoSolicitud.Aprobada),     // 3
+            Rechazadas = await query.CountAsync(s => s.Estado == EstadoSolicitud.Rechazada),   // 4
+            Canceladas = await query.CountAsync(s => s.Estado == EstadoSolicitud.Cancelada)    // 5
+        };
+
+        return resumen;
+    }
 }

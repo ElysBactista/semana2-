@@ -1,11 +1,14 @@
-﻿namespace GestionSolicitudes.Client.DTOs;
+﻿using GestionSolicitudes.Client.DTOs;
+
+namespace GestionSolicitudes.Client.DTOs;
 
 public class SolicitudDto
 {
     public int Id { get; set; }
     public string Titulo { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
-    public string Estado { get; set; } = string.Empty;
+    public int  Estado { get; set; }
+    public string Solicitante { get; set; } = string.Empty;
     public DateTime FechaCreacion { get; set; }
 }
 
@@ -17,16 +20,11 @@ public class CrearSolicitudDto
 
 }
 
-public class ActualizarSoliciudDto 
+public class RespuestaPaginaDto<T>
 {
-    public string Titulo { get; set; } = string.Empty;
-    public string? Descripcion { get; set; }
-    public string Solicitante { get; set; } = string.Empty;
+   public int TotalRegistros { get; set; }
+    public int NumeroPagina { get; set; }
+    public int TamanoPagina { get; set; }
 
-
-}
-
-public class ActualizarEstadoDto
-{
-    public string NuevoEstado { get; set; } = string.Empty;
+    public List<T> Datos { get; set; } = new();
 }

@@ -1,16 +1,92 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+@inject NavigationManager Navigation
+
+<div class="d-flex min-vh-100">
+    <!-- Barra Lateral Azul Gob (#003876) -->
+    <div class="sidebar-container bg-azul-gob text-white transition-all @(sidebarColapsado ? "sidebar-collapsed" : "sidebar-expanded")">
+        <NavMenu @bind-esColapsado="sidebarColapsado" />
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+    <!-- Contenido Principal -->
+    <div class="flex-grow-1 d-flex flex-column bg-light-gob">
+        <!-- Topbar Superior -->
+        <header class="top-header bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-bank2 fs-3 text-azul-gob"></i>
+                <div class="vr" style="height: 25px;"></div>
+                <h6 class="mb-0 fw-bold text-azul-gob tracking-wide">DIRECCIÓN GENERAL DE MIGRACIÓN</h6>
+            </div>
 
-        <article class="content px-4">
+            <!-- Perfil y Salir -->
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-circle-sm">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <span class="fw-semibold text-secondary small d-none d-md-inline">Usuario Activo</span>
+                </div>
+                <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" @onclick="CerrarSesion">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Salir</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Cuerpo del Dashboard / Solicitudes -->
+        <main class="content-body p-4 flex-grow-1">
             @Body
-        </article>
-    </main>
+        </main>
+    </div>
 </div>
+
+<style>
+    .bg-azul-gob {
+        background-color: #003876 !important; /* Mismo azul que el Login */
+    }
+
+    .bg-light-gob {
+        background-color: #F8F8F8 !important;
+    }
+
+    .text-azul-gob {
+        color: #003876 !important;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .sidebar-container {
+        transition: width 0.3s ease-in-out;
+        z-index: 100;
+    }
+
+    .sidebar-expanded {
+        width: 240px;
+    }
+
+    .sidebar-collapsed {
+        width: 70px;
+    }
+
+    .top-header {
+        height: 65px;
+    }
+
+    .avatar-circle-sm {
+        width: 32px;
+        height: 32px;
+        background-color: #003876;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+@code {
+    private bool sidebarColapsado = false;
+
+    private void CerrarSesion()
+    {
+        Navigation.NavigateTo("/login");
+    }
+}

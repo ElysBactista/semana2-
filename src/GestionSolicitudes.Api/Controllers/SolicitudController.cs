@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
-using GestionSolicitudes.Application.DTOs;
+﻿using GestionSolicitudes.Application.DTOs;
 using GestionSolicitudes.Application.Interfaces;
+using GestionSolicitudes.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace GestionSolicitudes.Api.Controllers;
 
@@ -70,4 +71,22 @@ public class SolicitudController(ISolicitudService solicitudService) : Controlle
         if (!resultado) return NotFound("La solicitud no existe o está inactiva.");
         return NoContent();
     }
+
+
+    // --- GET: Resumen para el Dashboard ---
+    [HttpGet("dashboard")]
+    public async Task<ActionResult<DashboardDto>> ObtenerResumenDashboard([FromQuery] DateTime fechaInicio, [FromQuery] DateTime fechaFin)
+    {
+        try
+        {
+            // Le quitamos el "_" al principio de solicitudService
+            var resumen = await solicitudService.ObtenerResumenDashboardAsync(fechaInicio, fechaFin);
+            return Ok(resumen);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error al cargar el dashboard: {ex.Message}");
+        }
+    }
+
 }

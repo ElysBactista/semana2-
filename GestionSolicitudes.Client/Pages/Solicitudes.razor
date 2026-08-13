@@ -1,0 +1,313 @@
+﻿@page "/solicitudes"
+@inject IJSRuntime JS
+@using GestionSolicitudes.Client.DTOs
+@using GestionSolicitudes.Client.Services
+@inject SweetAlertService Swal
+@inject SolicitudClientService SolicitudService
+@inject HttpClient Http
+
+<PageTitle>Lista de Solicitudes</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>📋 Gestión de Solicitudes</h2>
+        <button class="btn btn-primary" @onclick="() => AbrirModalCrear()">
+            <i class="bi bi-plus-lg"></i> Nueva Solicitud
+        </button>
+    </div>
+
+    <!-- Buscador -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar por título o solicitante..."
+                       @bind="terminoBusqueda" @bind:event="oninput" @onkeyup="Buscar" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="Buscar">Buscar</button>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else if (solicitudes == null || !solicitudes.Any())
+    {
+        <div class="alert alert-info text-center">
+            No se encontraron solicitudes registradas.
+        </div>
+    }
+    else
+    {
+        <!-- Tabla de Datos -->
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle bg-white mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Título</th>
+                        <th>Solicitante</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in solicitudes)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td><strong>@item.Titulo</strong></td>
+                            <td>@item.Solicitante</td>
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge @ObtenerClaseEstado(item.Estado)">
+                                    @ObtenerNombreEstado(item.Estado)
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                
+                                <button class="btn btn-sm btn-outline-warning me-1" title="Editar" @onclick="() => AbrirModalEditar(item)">
+                                    ✏️
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Eliminar" @onclick="() => Eliminar(item.Id, item.Solicitante)">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <small class="text-muted">
+                Mostrando @solicitudes.Count de @totalRegistros registros
+            </small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+                        <button class="page-link" @onclick="() => CambiarPagina(paginaActual - 1)">Anterior</button>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Página @paginaActual</span>
+                    </li>
+                    <li class="page-item @(paginaActual * tamanoPagina >= totalRegistros ? "disabled" : "")">
+                        <button class="page-link" @onclick="() => CambiarPagina(paginaActual + 1)">Siguiente</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Ventana Emergente (Modal) -->
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(esNuevaSolicitud ? "Nueva Solicitud" : "Editar Solicitud")</h5>
+                    <button type="button" class="btn-close" @onclick="() => CerrarModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" @bind="modeloFormulario.Titulo" placeholder="Ej. Instalación de software" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Solicitante</label>
+                        <input type="text" class="form-control" @bind="modeloFormulario.Solicitante" placeholder="Nombre de quien solicita" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" rows="3" @bind="modeloFormulario.Descripcion" placeholder="Detalles de la solicitud..."></textarea>
+                    </div>
+
+                    <!-- NUEVO: Selector de Estado (Solo visible al editar) -->
+                    @if (!esNuevaSolicitud)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Estado de la Solicitud</label>
+                            <select class="form-select" @bind="estadoEdicion">
+                                <option value="1">Pendiente </option>
+                                <option value="2">En proceso</option>
+                                <option value="3">Aprobada</option>
+                                <option value="4">Rechazada</option>
+                                <option value="5">Cancelada</option>
+
+
+                            </select>
+                        </div>
+                    }
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => CerrarModal()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="() => GuardarSolicitud()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<SolicitudDto> solicitudes = new();
+    private bool cargando = true;
+    private string terminoBusqueda = string.Empty;
+    private int paginaActual = 1;
+    private int tamanoPagina = 5;
+    private int totalRegistros = 0;
+
+    // Variables para controlar la ventana emergente    
+    private bool mostrarModal = false;
+    private bool esNuevaSolicitud = true;
+    private ActualizarSolicitudDto modeloFormulario = new();
+
+    // Variable para editar solicitud 
+    private int idEdicion = 0;
+    
+    // NUEVO: Variable para capturar el estado al editar
+    private int estadoEdicion = 2; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarSolicitudes();
+    }
+
+    private async Task CargarSolicitudes()
+    {
+        cargando = true;
+        var resultado = await SolicitudService.ObtenerTodasAsync(terminoBusqueda, paginaActual, tamanoPagina);
+        totalRegistros = resultado.Total;
+        solicitudes = resultado.Solicitudes;
+        cargando = false;
+    }
+
+    private async Task Buscar()
+    {
+        paginaActual = 1;
+        await CargarSolicitudes();
+    }
+
+    private async Task CambiarPagina(int nuevaPagina)
+    {
+        paginaActual = nuevaPagina;
+        await CargarSolicitudes();
+    }
+
+    private async Task Eliminar(int id,string nombreSolicitante)
+    {
+        bool confirmado = await JS.InvokeAsync<bool>("confirm", $"¿Está seguro de que desea eliminar la solicitud de {nombreSolicitante}?");
+        if (!confirmado)
+        {
+            return;
+        }
+
+        var exito = await SolicitudService.DesactivarAsync(id);
+        if (exito)
+        {
+            await Swal.FireAsync("Eliminado", "La solicitud fue eliminada con éxito.", SweetAlertIcon.Success);
+            await CargarSolicitudes();
+        }
+    }
+
+  
+
+    private string ObtenerClaseEstado(int estado)
+    {
+        return estado switch
+        {
+            1 => "bg-secondary", // Pendiente (Gris neutro para las nuevas)
+            2 => "bg-primary",   // En Proceso (Azul)
+            3 => "bg-success",   // Aprobada (Verde)
+            4 => "bg-danger",    // Rechazada (Rojo)
+            5 => "bg-dark",      // Cancelada (Negro)
+            _ => "bg-light text-dark"
+        };
+    }
+
+    private string ObtenerNombreEstado(int estado)
+    {
+        return estado switch
+        {
+            1 => "Pendiente",
+            2 => "En proceso",
+            3 => "Aprobada",
+            4 => "Rechazada",
+            5 => "Cancelada",
+            _ => "Desconocido"
+        };
+    }
+
+    private void AbrirModalCrear()
+    {
+        esNuevaSolicitud = true;
+        modeloFormulario = new ActualizarSolicitudDto();
+        mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(SolicitudDto solicitud)
+    {
+        esNuevaSolicitud = false;
+        idEdicion = solicitud.Id;
+        
+        // Asignamos el estado actual para que el <select> muestre la opción correcta
+        estadoEdicion = solicitud.Estado; 
+
+        modeloFormulario = new ActualizarSolicitudDto
+        {
+            Titulo = solicitud.Titulo,
+            Solicitante = solicitud.Solicitante,
+            Descripcion = solicitud.Descripcion
+        };
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+    private async Task GuardarSolicitud()
+    {
+        try
+        {
+            if (esNuevaSolicitud)
+            {
+                var nuevaSolicitud = new CrearSolicitudDto
+                {
+                    Titulo = modeloFormulario.Titulo,
+                    Solicitante = modeloFormulario.Solicitante,
+                    Descripcion = modeloFormulario.Descripcion
+                };
+
+                await SolicitudService.CrearAsync(nuevaSolicitud);
+                await Swal.FireAsync("¡Éxito!", "La solicitud se creó correctamente.", SweetAlertIcon.Success);
+            }
+            else
+            {
+                // 1. Actualizamos los textos generales (PUT)
+                await SolicitudService.ActualizarAsync(idEdicion, modeloFormulario);
+                
+                // 2. Actualizamos el estado (PATCH) conectando directo con tu endpoint
+                await Http.PatchAsJsonAsync($"api/solicitud/{idEdicion}/estado", new { NuevoEstado = estadoEdicion });
+
+                await Swal.FireAsync("¡Actualizado!", "La solicitud se guardó correctamente.", SweetAlertIcon.Success);
+            }
+
+            await CargarSolicitudes();
+            CerrarModal();
+        }
+        catch (Exception)
+        {
+            await Swal.FireAsync("Error", "Ocurrió un problema al guardar la solicitud.", SweetAlertIcon.Error);
+        }
+    }
+}

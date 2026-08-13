@@ -1,0 +1,190 @@
+﻿@inject HttpClient Http
+@page "/dashboard"
+
+<PageTitle>Dashboard - Resumen</PageTitle>
+
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Dashboard Semanal</h2>
+
+    <!-- Filtros por Fecha -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Desde:</label>
+                    <input type="date" class="form-control" @bind="fechaInicio" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Hasta:</label>
+                    <input type="date" class="form-control" @bind="fechaFin" />
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" @onclick="CargarDatosDashboard">
+                        <i class="bi bi-filter"></i> Aplicar Filtro
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Indicadores (Resumen por estado) -->
+    <!-- Tarjetas de Indicadores (6 tarjetas de col-md-2) -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">Total</h6>
+                    <h3 class="fw-bold mb-0">@totalSolicitudes</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">Pendientes</h6>
+                    <h3 class="fw-bold mb-0">@totalPendientes</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">En Proceso</h6>
+                    <h3 class="fw-bold mb-0">@totalEnProceso</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">Aprobadas</h6>
+                    <h3 class="fw-bold mb-0">@totalAprobadas</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">Rechazadas</h6>
+                    <h3 class="fw-bold mb-0">@totalRechazadas</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-dark text-white shadow">
+                <div class="card-body text-center p-2">
+                    <h6 class="card-title">Canceladas</h6>
+                    <h3 class="fw-bold mb-0">@totalCanceladas</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Gráfico de Resumen por Estado -->
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">Distribución de Solicitudes</h5>
+
+                    <ApexChart @ref="miGrafico" TItem="DatoGrafico" Title="Solicitudes por Estado">
+                        <ApexPointSeries TItem="DatoGrafico"
+                                         Items="datosDelGrafico"
+                                         Name="Cantidad"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="@(e => e.Estado)"
+                                         YValue="@(e => e.Cantidad)" />
+                    </ApexChart>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- AQUÍ ESTÁ EL CIERRE QUE FALTABA -->
+@code {
+    // ==========================================
+    // 1. CLASES (Modelos de datos)
+    // ==========================================
+    public class DashboardDto
+    {
+        public int TotalSolicitudes { get; set; }
+        public int Aprobadas { get; set; }
+        public int EnProceso { get; set; }
+        public int Pendientes { get; set; }
+        public int Canceladas { get; set; }
+        public int Rechazadas { get; set; }
+    }
+
+    public class DatoGrafico
+    {
+        public string? Estado { get; set; } // Agregado el ? para evitar advertencias
+        public int Cantidad { get; set; }
+    }
+
+    // ==========================================
+    // 2. VARIABLES DEL COMPONENTE
+    // ==========================================
+    private ApexChart<DatoGrafico>? miGrafico; // Agregado el ? para evitar advertencias
+    private List<DatoGrafico> datosDelGrafico = new();
+    private DateTime fechaInicio = DateTime.Today.AddDays(-7);
+    private DateTime fechaFin = DateTime.Today; // AQUÍ ESTÁ LA VARIABLE QUE FALTABA
+
+    private int totalSolicitudes = 0;
+    private int totalPendientes = 0;
+    private int totalEnProceso = 0;   
+    private int totalAprobadas = 0;
+    private int totalRechazadas = 0;
+    private int totalCanceladas = 0;  
+
+    // ==========================================
+    // 3. INICIALIZACIÓN
+    // ==========================================
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatosDashboard();
+    }
+
+    // ==========================================
+    // 4. MÉTODOS
+    // ==========================================
+    private async Task CargarDatosDashboard()
+    {
+        try
+        {
+            string url = $"api/solicitud/dashboard?fechaInicio={fechaInicio:yyyy-MM-dd}&fechaFin={fechaFin:yyyy-MM-dd}";
+            var resumen = await Http.GetFromJsonAsync<DashboardDto>(url);
+
+            if (resumen != null)
+            {
+                totalSolicitudes = resumen.TotalSolicitudes;
+                totalPendientes = resumen.Pendientes;
+                totalEnProceso = resumen.EnProceso;   
+                totalAprobadas = resumen.Aprobadas;
+                totalRechazadas = resumen.Rechazadas;
+                totalCanceladas = resumen.Canceladas; 
+
+                // Llenamos el gráfico con LOS 5 ESTADOS
+                datosDelGrafico = new List<DatoGrafico>
+                {
+                    new DatoGrafico { Estado = "Pendientes", Cantidad = totalPendientes },
+                    new DatoGrafico { Estado = "En Proceso", Cantidad = totalEnProceso },
+                    new DatoGrafico { Estado = "Aprobadas", Cantidad = totalAprobadas },
+                    new DatoGrafico { Estado = "Rechazadas", Cantidad = totalRechazadas },
+                    new DatoGrafico { Estado = "Canceladas", Cantidad = totalCanceladas }
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error de conexión: {ex.Message}");
+        }
+
+        await InvokeAsync(StateHasChanged);
+
+        if (miGrafico != null)
+        {
+            await miGrafico.RenderAsync();
+        }
+    }
+}

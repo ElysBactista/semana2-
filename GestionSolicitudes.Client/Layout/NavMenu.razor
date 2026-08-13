@@ -1,39 +1,78 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">GestionSolicitudes.Client</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿<div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3 border-bottom-gob">
+    <div class="d-flex align-items-center gap-2 text-white">
+        <!-- Ícono Cúpula Pequeño -->
+        <i class="bi bi-bank2 fs-4 text-white"></i>
+        @if (!esColapsado)
+        {
+            <span class="fw-bold fs-5 text-white title-dgm">DGM</span>
+        }
     </div>
+    <!-- Botón Hambuger para expandir/colapsar la barra -->
+    <button class="btn btn-sm text-white p-1 border-0" @onclick="ToggleSidebar" title="Expandir/Contraer">
+        <i class="bi bi-list fs-4"></i>
+    </button>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+<div class="nav-scrollable">
+    <nav class="flex-column p-2">
+        <!-- Dashboard -->
+        <div class="nav-item mb-2">
+            <NavLink class="nav-link custom-nav text-white rounded d-flex align-items-center gap-3 px-3 py-2" href="dashboard" Match="NavLinkMatch.All">
+                <i class="bi bi-speedometer2 fs-5"></i>
+                @if (!esColapsado)
+                {
+                    <span class="fw-medium">Dashboard</span>
+                }
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+
+        <!-- Solicitudes -->
+        <div class="nav-item mb-2">
+            <NavLink class="nav-link custom-nav text-white rounded d-flex align-items-center gap-3 px-3 py-2" href="solicitudes">
+                <i class="bi bi-file-earmark-text fs-5"></i>
+                @if (!esColapsado)
+                {
+                    <span class="fw-medium">Solicitudes</span>
+                }
             </NavLink>
         </div>
     </nav>
 </div>
 
+<style>
+    .border-bottom-gob {
+        border-bottom: 2px solid #EE2A24 !important;
+    }
+
+    .title-dgm {
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    .custom-nav {
+        color: #ffffff !important;
+        transition: all 0.2s ease-in-out;
+        white-space: nowrap;
+    }
+
+        .custom-nav:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .custom-nav.active {
+            background-color: #0087FF !important;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+</style>
+
 @code {
-    private bool collapseNavMenu = true;
+    [Parameter] public bool esColapsado { get; set; }
+    [Parameter] public EventCallback<bool> esColapsadoChanged { get; set; }
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    private async Task ToggleSidebar()
     {
-        collapseNavMenu = !collapseNavMenu;
+        esColapsado = !esColapsado;
+        await esColapsadoChanged.InvokeAsync(esColapsado);
     }
 }

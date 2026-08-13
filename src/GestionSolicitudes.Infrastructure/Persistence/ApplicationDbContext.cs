@@ -1,17 +1,17 @@
 ﻿using GestionSolicitudes.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace GestionSolicitudes.Infrastructure.Persistence;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<Solicitud> Solicitudes => Set<Solicitud>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(modelBuilder); // <-- Crucial para que EF configure las tablas de Identity
 
         modelBuilder.Entity<Solicitud>(entity =>
         {
@@ -27,28 +27,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 Titulo = "Instalación de equipo",
                 Solicitante = "Elys Camila Batista Encarnacion ",
             },
-
             new Solicitud
             {
                 Id = 2,
                 Titulo = "Mantenimiento de software",
                 Solicitante = "Pedro Martinez Gonzales ",
             },
-
             new Solicitud
             {
                 Id = 3,
                 Titulo = "Actualización de sistema",
                 Solicitante = "Leonel Leon Pica piedra  ",
             },
-
             new Solicitud
             {
                 Id = 4,
                 Titulo = " Revision de Red ",
                 Solicitante = "Giana pichardo Chiguaua ",
             },
-
             new Solicitud
             {
                 Id = 5,
@@ -56,6 +52,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 Solicitante = " Rossi Mosqueta Garcia",
             }
         );
-
     }
 }

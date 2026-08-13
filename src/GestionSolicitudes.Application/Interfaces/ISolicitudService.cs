@@ -12,4 +12,6 @@ public interface ISolicitudService
     Task<bool> ActualizarAsync(int id, ActualizarSolicitudDto dto);
     Task<bool> CambiarEstadoAsync(int id, ActualizarEstadoDto dto);
     Task<bool> DesactivarAsync(int id);
+    Task<DashboardDto> ObtenerResumenDashboardAsync(DateTime fechaInicio, DateTime fechaFin);
 }
+
