@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#003876">
+  <!-- Remate / Linterna superior -->
+  <path d="M47 8 h6 v4 h-6 z" />
+  <path d="M48 12 h4 v6 h-4 z" />
+  <path d="M44 18 h12 v3 h-12 z" />
+  
+  <!-- Cúpula / Domo con gajos -->
+  <path d="M50 24 C34 24 20 37 16 54 h68 C80 37 66 24 50 24 Z" />
+  
+  <!-- Líneas divisorias de los gajos de la cúpula -->
+  <path d="M30 54 C32 40 40 28 50 24" stroke="#ffffff" stroke-width="2.5" fill="none" />
+  <path d="M70 54 C68 40 60 28 50 24" stroke="#ffffff" stroke-width="2.5" fill="none" />
+  <path d="M42 54 C43 42 47 30 50 24" stroke="#ffffff" stroke-width="2" fill="none" />
+  <path d="M58 54 C57 42 53 30 50 24" stroke="#ffffff" stroke-width="2" fill="none" />
+  
+  <!-- Cornisa / Base intermedia -->
+  <rect x="12" y="56" width="76" height="5" rx="1.5" />
+  
+  <!-- Tambor / Columnas del balcón -->
+  <rect x="15" y="63" width="70" height="3" />
+  <rect x="18" y="66" width="4" height="12" />
+  <rect x="28" y="66" width="4" height="12" />
+  <rect x="38" y="66" width="4" height="12" />
+  <rect x="48" y="66" width="4" height="12" />
+  <rect x="58" y="66" width="4" height="12" />
+  <rect x="68" y="66" width="4" height="12" />
+  <rect x="78" y="66" width="4" height="12" />
+  
+  <!-- Base inferior -->
+  <rect x="12" y="78" width="76" height="6" rx="2" />
+  <rect x="8" y="86" width="84" height="6" rx="2" />
+</svg>

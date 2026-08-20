@@ -1,78 +1,94 @@
-﻿<div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3 border-bottom-gob">
-    <div class="d-flex align-items-center gap-2 text-white">
-        <!-- Ícono Cúpula Pequeño -->
-        <i class="bi bi-bank2 fs-4 text-white"></i>
-        @if (!esColapsado)
-        {
-            <span class="fw-bold fs-5 text-white title-dgm">DGM</span>
-        }
+﻿@inject IJSRuntime JS
+
+<div class="d-flex flex-column h-100 p-3 text-white">
+    <!-- ========================================================= -->
+    <!-- 1. HEADER INSTITUCIONAL DGM (Logo / Escudo)               -->
+    <!-- ========================================================= -->
+    <div class="d-flex align-items-center gap-2 pb-3 mb-3 border-bottom border-white border-opacity-25">
+        <i class="bi bi-shield-lock-fill fs-4 text-warning"></i>
+        <span class="fs-5 fw-bold tracking-wide text-white">DGM</span>
     </div>
-    <!-- Botón Hambuger para expandir/colapsar la barra -->
-    <button class="btn btn-sm text-white p-1 border-0" @onclick="ToggleSidebar" title="Expandir/Contraer">
-        <i class="bi bi-list fs-4"></i>
-    </button>
-</div>
 
-<div class="nav-scrollable">
-    <nav class="flex-column p-2">
-        <!-- Dashboard -->
-        <div class="nav-item mb-2">
-            <NavLink class="nav-link custom-nav text-white rounded d-flex align-items-center gap-3 px-3 py-2" href="dashboard" Match="NavLinkMatch.All">
-                <i class="bi bi-speedometer2 fs-5"></i>
-                @if (!esColapsado)
-                {
-                    <span class="fw-medium">Dashboard</span>
-                }
-            </NavLink>
-        </div>
+    <!-- ========================================================= -->
+    <!-- 2. NAVEGACIÓN DINÁMICA CONDICIONADA POR ROL               -->
+    <!-- ========================================================= -->
+    <ul class="nav nav-pills flex-column gap-2 mb-auto">
+        @if (rolUsuario == "Administrador")
+        {
+            <!-- VISTAS PARA ADMINISTRADOR / OFICIAL DE MIGRACIÓN -->
+            <li class="nav-item">
+                <NavLink class="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded-3" href="dashboard" Match="NavLinkMatch.All">
+                    <i class="bi bi-grid-1x2-fill fs-5"></i>
+                    <span class="fw-medium">Panel General</span>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded-3" href="solicitudes">
+                    <i class="bi bi-folder2-open fs-5"></i>
+                    <span class="fw-medium">Gestión Solicitudes</span>
+                </NavLink>
+            </li>
+        }
+        else if (rolUsuario == "Residente" || rolUsuario == "Solicitante")
+        {
+            <!-- VISTAS PARA EL RESIDENTE / SOLICITANTE -->
+            <li class="nav-item">
+                <NavLink class="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded-3" href="mis-solicitudes" Match="NavLinkMatch.All">
+                    <i class="bi bi-folder2-open fs-5"></i>
+                    <span class="fw-medium">Mis Solicitudes</span>
+                </NavLink>
+            </li>
+        }
+        else
+        {
+            <!-- VISTA POR DEFECTO MIENTRAS CARGA EL ROL -->
+            <li class="nav-item">
+                <NavLink class="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded-3" href="dashboard">
+                    <i class="bi bi-grid-1x2-fill fs-5"></i>
+                    <span class="fw-medium">Inicio</span>
+                </NavLink>
+            </li>
+        }
+    </ul>
 
-        <!-- Solicitudes -->
-        <div class="nav-item mb-2">
-            <NavLink class="nav-link custom-nav text-white rounded d-flex align-items-center gap-3 px-3 py-2" href="solicitudes">
-                <i class="bi bi-file-earmark-text fs-5"></i>
-                @if (!esColapsado)
-                {
-                    <span class="fw-medium">Solicitudes</span>
-                }
-            </NavLink>
-        </div>
-    </nav>
+    <!-- ========================================================= -->
+    <!-- 3. FOOTER DEL SIDEBAR                                     -->
+    <!-- ========================================================= -->
+    <div class="pt-3 border-top border-white border-opacity-25">
+        <small class="text-white-50 d-block" style="font-size: 0.75rem;">Versión 1.0.0</small>
+        <small class="text-white-50" style="font-size: 0.7rem;">DGM © 2026</small>
+    </div>
 </div>
 
 <style>
-    .border-bottom-gob {
-        border-bottom: 2px solid #EE2A24 !important;
-    }
-
-    .title-dgm {
-        font-family: 'Poppins', sans-serif;
-        letter-spacing: 1px;
-    }
-
-    .custom-nav {
+    .nav-link {
         color: #ffffff !important;
-        transition: all 0.2s ease-in-out;
-        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.1s ease;
     }
 
-        .custom-nav:hover {
+        .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.15) !important;
+            transform: translateX(3px);
         }
 
-        .custom-nav.active {
-            background-color: #0087FF !important;
+        .nav-link.active {
+            background-color: #EE2A24 !important; /* Rojo institucional DGM */
+            color: #ffffff !important;
             font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 </style>
 
 @code {
-    [Parameter] public bool esColapsado { get; set; }
-    [Parameter] public EventCallback<bool> esColapsadoChanged { get; set; }
+    // Almacena el rol recuperado de sessionStorage
+    private string rolUsuario = string.Empty;
 
-    private async Task ToggleSidebar()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        esColapsado = !esColapsado;
-        await esColapsadoChanged.InvokeAsync(esColapsado);
+        if (firstRender)
+        {
+            // Lee el rol activo para renderizar los accesos correspondientes
+            rolUsuario = await JS.InvokeAsync<string>("sessionStorage.getItem", "rolUsuario") ?? string.Empty;
+            StateHasChanged();
+        }
     }
 }

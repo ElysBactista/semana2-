@@ -6,16 +6,10 @@ using Microsoft.JSInterop;
 
 namespace GestionSolicitudes.Client;
 
-public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+public class CustomAuthenticationStateProvider(IJSRuntime jsRuntime, HttpClient httpClient) : AuthenticationStateProvider
 {
-    private readonly IJSRuntime _jsRuntime;
-    private readonly HttpClient _httpClient;
-
-    public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, HttpClient httpClient)
-    {
-        _jsRuntime = jsRuntime;
-        _httpClient = httpClient;
-    }
+    private readonly IJSRuntime _jsRuntime = jsRuntime;
+    private readonly HttpClient _httpClient = httpClient;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
@@ -70,7 +64,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
             if (roles != null)
             {
-                if (roles.ToString()!.StartsWith("["))
+                if (!roles.ToString()!.StartsWith("["))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
+                }
+                else
                 {
                     var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString()!);
                     if (parsedRoles != null)
@@ -80,10 +78,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
                             claims.Add(new Claim(ClaimTypes.Role, parsedRole));
                         }
                     }
-                }
-                else
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
                 }
 
                 keyValuePairs.Remove(ClaimTypes.Role);
@@ -95,7 +89,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         return claims;
     }
 
-    private byte[] ParseBase64WithoutPadding(string base64)
+    private static byte[] ParseBase64WithoutPadding(string base64)
     {
         switch (base64.Length % 4)
         {

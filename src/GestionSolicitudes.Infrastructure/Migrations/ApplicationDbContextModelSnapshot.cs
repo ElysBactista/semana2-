@@ -60,7 +60,7 @@ namespace GestionSolicitudes.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Solicitudes");
+                    b.ToTable("Solicitudes", (string)null);
 
                     b.HasData(
                         new

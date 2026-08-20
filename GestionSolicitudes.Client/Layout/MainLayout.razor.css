@@ -1,77 +1,154 @@
-.page {
-    position: relative;
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: #F8F9FA;
+}
+
+.sidebar-wrapper {
+    background-color: #003876;
+    flex-shrink: 0;
+    transition: width 0.25s ease-in-out;
+    min-height: 100vh;
+}
+
+.sidebar-expanded {
+    width: 240px;
+}
+
+.sidebar-collapsed {
+    width: 70px;
+}
+
+.main-content-wrapper {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
-main {
-    flex: 1;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+.topbar-dgm {
+    height: 65px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #E5E7EB;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
-
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
+.logo-topbar {
+    height: 32px;
+    width: auto;
 }
 
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
+.vr-divider {
+    width: 1px;
+    height: 22px;
+    background-color: #D1D5DB;
+}
+
+.titulo-institucion {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    color: #003876;
+}
+
+.page-body {
+    flex: 1 1 auto;
+    padding: 1.75rem 2rem;
+}
+
+.user-pill-btn {
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 50rem;
+    padding: 0.35rem 0.85rem 0.35rem 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+    .user-pill-btn:hover {
+        background: #E2E8F0;
     }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
+.avatar-sm {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, #003876 0%, #0056B3 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.avatar-lg {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, #003876 0%, #0056B3 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1E293B;
+    display: block;
+}
+
+.user-role {
+    font-size: 0.72rem;
+    color: #64748B;
+    display: block;
+}
+
+.dropdown-menu-custom {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 270px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 1050;
+}
+
+.dropdown-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .dropdown-link-btn:hover {
+        background-color: #F1F5F9;
     }
 
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
+.modal-backdrop-custom {
+    background-color: rgba(0, 30, 60, 0.55);
+    backdrop-filter: blur(2px);
 }

@@ -1,42 +1,19 @@
-﻿@page "/"
-@page "/login"
+﻿@page "/registro"
 @layout EmptyLayout
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@* @using GestionSolicitudes.Client.DTOs *@
 
-<PageTitle>Inicio de Sesión - Dirección General de Migración</PageTitle>
+<PageTitle>Registro de Usuario - Dirección General de Migración</PageTitle>
 
 <div class="divPrincipalLogin">
-    <!-- Fondo Curvado con Logo de Fondo -->
+    <!-- Fondo Curvado con Marca Institucional -->
     <div class="curved-background" aria-hidden="true">
         <div class="image__login__logo">
-            <svg class="login__main__image" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 1238 759.96" xml:space="preserve">
+            <svg class="login__main__image" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1238 759.96">
                 <text transform="matrix(1.1561 0 0 1 283.3885 434.893)" fill="#fff" font-family="Gotham-Light" font-size="64.999px">
                     <tspan x="0" y="0">G</tspan><tspan x="50.18" y="0">OBI</tspan><tspan x="168.02" y="0">E</tspan><tspan x="210.79" y="0">R</tspan><tspan x="257.07" y="0">N</tspan><tspan x="307.64" y="0">O </tspan><tspan x="380.95" y="0">DE</tspan><tspan x="473.77" y="0"> L</tspan><tspan x="532.08" y="0">A</tspan>
                 </text>
-                <g>
-                    <path fill="#fff" d="M621.84,46.64v-3.46h7.1v-0.5v-1.16v-2.86h-2.92v2.86h-4.18v-7.48h0.69v-4.4h-3.05v4.4h0.69v7.48H616v-2.86 h-2.92v2.86v1.16v0.5h7.1v3.46c-13.07,0.44-23.71,11.58-23.38,24.92h48.37C645.49,58.23,634.85,47.12,621.84,46.64"></path>
-                    <path fill="#fff" d="M590.39,79.94h60.98c0.52,0,0.94-0.42,0.94-0.95v-3.62c0-0.52-0.42-0.95-0.94-0.95h-60.98 c-0.53,0-0.94,0.42-0.94,0.95v3.62C589.45,79.52,589.87,79.94,590.39,79.94"></path>
-                    <path fill="#fff" d="M590.39,126.14h60.98c0.52,0,0.94-0.42,0.94-0.95v-3.62c0-0.52-0.42-0.95-0.94-0.95h-60.98 c-0.53,0-0.94,0.42-0.94,0.95v3.62C589.45,125.71,589.87,126.14,590.39,126.14"></path>
-                    <path fill="#fff" d="M601.42,82.64c-0.98,0-1.77,0.79-1.77,1.77v31.74c0,0.98,0.79,1.78,1.77,1.78h7.35c0.98,0,1.78-0.79,1.78-1.78 V84.41c0-0.98-0.79-1.77-1.78-1.77H601.42z"></path>
-                    <path fill="#fff" d="M617.21,82.64c-0.98,0-1.78,0.79-1.78,1.77v31.74c0,0.98,0.79,1.78,1.78,1.78h7.35c0.98,0,1.77-0.79,1.77-1.78 V84.41c0-0.98-0.8-1.77-1.77-1.77H617.21z"></path>
-                    <path fill="#fff" d="M632.74,82.64c-0.98,0-1.78,0.79-1.78,1.77v31.74c0,0.98,0.79,1.78,1.78,1.78h7.35c0.98,0,1.78-0.79,1.78-1.78 V84.41c0-0.98-0.79-1.77-1.78-1.77H632.74z"></path>
-                    <path fill="#fff" d="M494.89,242.26c4.12-16.4,11.07-42.96,31.28-70c8.17-10.94,22.41-27.17,45.04-41.6 c-14.44,5.38-44.98,19.02-70.29,50.49c-33.17,41.25-35.66,86.17-35.86,100.7h23.52C489.28,271.87,490.9,258.15,494.89,242.26"></path>
-                    <path fill="#fff" d="M716.08,172.26c20.21,27.04,27.15,53.6,31.27,70c3.99,15.88,5.61,29.6,6.31,39.59h23.53 c-0.2-14.52-2.69-59.45-35.86-100.7c-25.31-31.47-55.86-45.11-70.29-50.49C693.67,145.09,707.91,161.32,716.08,172.26"></path>
-                    <path fill="#fff" d="M592.72,136.4c-11.47,5.66-24.33,13.7-36.72,25.25c-45.7,42.6-51.02,101.22-51.93,120.21h40.74 c-0.63-22.84,1.59-60.74,20.66-101.56C573.88,162.29,583.7,147.72,592.72,136.4"></path>
-                    <path fill="#fff" d="M737.31,281.85c-0.91-18.98-6.22-77.61-51.92-120.21c-12.39-11.54-25.24-19.59-36.73-25.25 c9.03,11.32,18.84,25.88,27.26,43.89c19.07,40.82,21.29,78.72,20.66,101.56H737.31z"></path>
-                    <path fill="#fff" d="M613.38,281.85V136.4c-10.83,11.71-24.66,29.43-35.53,53.64c-17.09,38.05-18.14,72.66-17.26,91.81H613.38z"></path>
-                    <path fill="#fff" d="M628.76,136.4v145.45h52.79c0.88-19.15-0.17-53.77-17.26-91.81C653.42,165.84,639.59,148.12,628.76,136.4"></path>
-                    <path fill="#fff" d="M753.99,293.58v-4.93c0-1.04-0.84-1.88-1.88-1.88h-13.39c-1.04,0-1.88,0.84-1.88,1.88v4.93h-39.18v-4.92 c0-1.04-0.84-1.88-1.88-1.88h-13.39c-1.04,0-1.88,0.84-1.88,1.88v4.92h-51.29v-4.92c0-1.04-0.84-1.88-1.88-1.88h-13.39 c-1.04,0-1.88,0.84-1.88,1.88v4.92h-50.72v-4.92c0-1.04-0.84-1.88-1.89-1.88h-13.39c-1.04,0-1.88,0.84-1.88,1.88v4.92h-39.31v-4.92 c0-1.04-0.84-1.88-1.88-1.88h-13.39c-1.04,0-1.88,0.84-1.88,1.88v4.92h-32.74v5.89h331.32v-5.89H753.99z"></path>
-                    <path fill="#fff" d="M502.8,321.03c1.14,0,2.06-0.92,2.06-2.06v-15.7h-17.15v15.7c0,1.14,0.92,2.06,2.06,2.06H502.8z"></path>
-                    <path fill="#fff" d="M559.27,321.03c1.14,0,2.06-0.92,2.06-2.06v-15.7h-17.16v15.7c0,1.14,0.92,2.06,2.06,2.06H559.27z"></path>
-                    <path fill="#fff" d="M627.15,321.03c1.14,0,2.06-0.92,2.06-2.06v-15.7h-17.16v15.7c0,1.14,0.93,2.06,2.06,2.06H627.15z"></path>
-                    <path fill="#fff" d="M695.6,321.03c1.13,0,2.06-0.92,2.06-2.06v-15.7H680.5v15.7c0,1.14,0.92,2.06,2.06,2.06H695.6z"></path>
-                    <path fill="#fff" d="M751.93,321.03c1.14,0,2.06-0.92,2.06-2.06v-15.7h-17.15v15.7c0,1.14,0.92,2.06,2.06,2.06H751.93z"></path>
-                    <path fill="#fff" d="M784.06,326H457.2c-1.23,0-2.23,1-2.23,2.23v8.49c0,1.23,1,2.23,2.23,2.23l326.87,0c1.23,0,2.23-1,2.23-2.23 v-8.49C786.29,326.99,785.29,326,784.06,326"></path>
-                </g>
                 <text transform="matrix(1.0006 0 0 1 25.3106 535.0453)" fill="#fff" font-family="Marion" font-size="96.8px">REPÚBLICA DOMINICANA</text>
                 <rect x="455.21" y="598.03" fill="#E4262F" width="330.84" height="11"></rect>
                 <text transform="matrix(1.063 0 0 1 300.1211 730.3217)" fill="#E4262F" font-family="Marion" font-size="102.4415px" letter-spacing="0.94">MIGRACIÓN</text>
@@ -48,8 +25,11 @@
     <div class="login-content-layer">
         <div class="login__y__image">
             <div class="divLogin">
-                <svg class="" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 1238 759.96" xml:space="preserve">
-                    <text transform="matrix(1.1561 0 0 1 283.3885 434.893)" fill="#003876" font-family="Gotham-Light" font-size="64.999px"><tspan x="0" y="0">G</tspan><tspan x="50.18" y="0">OBI</tspan><tspan x="168.02" y="0">E</tspan><tspan x="210.79" y="0">R</tspan><tspan x="257.07" y="0">N</tspan><tspan x="307.64" y="0">O </tspan><tspan x="380.95" y="0">DE</tspan><tspan x="473.77" y="0"> L</tspan><tspan x="532.08" y="0">A</tspan></text>
+                <!-- Escudo Institucional DGM -->
+                <svg class="w-100 mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1238 759.96" style="max-height: 80px;">
+                    <text transform="matrix(1.1561 0 0 1 283.3885 434.893)" fill="#003876" font-family="Gotham-Light" font-size="64.999px">
+                        <tspan x="0" y="0">G</tspan><tspan x="50.18" y="0">OBI</tspan><tspan x="168.02" y="0">E</tspan><tspan x="210.79" y="0">R</tspan><tspan x="257.07" y="0">N</tspan><tspan x="307.64" y="0">O </tspan><tspan x="380.95" y="0">DE</tspan><tspan x="473.77" y="0"> L</tspan><tspan x="532.08" y="0">A</tspan>
+                    </text>
                     <g>
                         <path fill="#003876" d="M621.84,46.64v-3.46h7.1v-0.5v-1.16v-2.86h-2.92v2.86h-4.18v-7.48h0.69v-4.4h-3.05v4.4h0.69v7.48H616v-2.86 h-2.92v2.86v1.16v0.5h7.1v3.46c-13.07,0.44-23.71,11.58-23.38,24.92h48.37C645.49,58.23,634.85,47.12,621.84,46.64"></path>
                         <path fill="#003876" d="M590.39,79.94h60.98c0.52,0,0.94-0.42,0.94-0.95v-3.62c0-0.52-0.42-0.95-0.94-0.95h-60.98 c-0.53,0-0.94,0.42-0.94,0.95v3.62C589.45,79.52,589.87,79.94,590.39,79.94"></path>
@@ -77,75 +57,89 @@
                 </svg>
 
                 <div class="user__icon">
-                    <svg class="user__login--icon" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
-                        <path fill="#003876" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"></path>
-                    </svg>
+                    <i class="bi bi-person-plus-fill fs-1" style="color: #003876;"></i>
                 </div>
 
-                <div class="user__text"><span>Inicio de sesión</span></div>
+                <div class="user__text"><span>Crear Cuenta</span></div>
 
                 @if (!string.IsNullOrEmpty(mensajeError))
                 {
-                    <div class="alert alert-danger py-2 mx-4 my-2 text-center" role="alert">
+                    <div class="alert alert-danger py-2 mx-2 mb-3 text-center small" role="alert">
                         @mensajeError
                     </div>
                 }
 
+                @if (!string.IsNullOrEmpty(mensajeExito))
+                {
+                    <div class="alert alert-success py-2 mx-2 mb-3 text-center small" role="alert">
+                        @mensajeExito
+                    </div>
+                }
+
                 <div class="divBtnLogin">
-                    <EditForm Model="loginModel" OnValidSubmit="ProcesarLogin" class="editform">
+                    <EditForm Model="registroModel" OnValidSubmit="ProcesarRegistro" class="editform">
                         <DataAnnotationsValidator />
 
+                        <!-- Correo Electrónico -->
                         <div class="form-floating mb-3">
                             <input type="email"
-                                   id="email"
+                                   id="regEmail"
                                    class="form-control"
-                                   autocomplete="email"
-                                   placeholder="name@example.com"
-                                   @bind-value="loginModel.Email"
+                                   placeholder="correo@ejemplo.com"
+                                   @bind-value="registroModel.Email"
                                    required />
-                            <label for="email" class="form-label">Email</label>
+                            <label for="regEmail" class="form-label">Correo electrónico</label>
                         </div>
 
+                        <!-- Contraseña -->
                         <div class="position-relative mb-3">
                             <div class="form-floating">
                                 <input type="@(mostrarPassword ? "text" : "password")"
-                                       id="password"
+                                       id="regPassword"
                                        class="form-control pe-5"
-                                       autocomplete="current-password"
                                        placeholder="password"
-                                       @bind-value="loginModel.Password"
+                                       @bind-value="registroModel.Password"
                                        required />
-                                <label for="password" class="form-label">Password</label>
+                                <label for="regPassword" class="form-label">Contraseña</label>
                             </div>
-
                             <button type="button"
                                     class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 text-muted"
                                     style="z-index: 5;"
                                     @onclick="ToggleMostrarPassword"
-                                    tabindex="-1"
-                                    title="@(mostrarPassword ? "Ocultar contraseña" : "Ver contraseña")">
+                                    tabindex="-1">
                                 <i class="bi @(mostrarPassword ? "bi-eye-slash-fill" : "bi-eye-fill") fs-5"></i>
                             </button>
                         </div>
 
-                        <!-- Botón Único de Iniciar Sesión -->
+                        <!-- Confirmar Contraseña -->
+                        <div class="form-floating mb-3">
+                            <input type="password"
+                                   id="regConfirmPassword"
+                                   class="form-control"
+                                   placeholder="confirm-password"
+                                   @bind-value="confirmarPassword"
+                                   required />
+                            <label for="regConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                        </div>
+
+                        <!-- Botón Crear Cuenta -->
                         <div class="button__content_login mb-3">
                             <button type="submit" class="login__button" disabled="@cargando">
                                 @if (cargando)
                                 {
-                                    <span>Cargando...</span>
+                                    <span>Registrando...</span>
                                 }
                                 else
                                 {
-                                    <span>Iniciar sesión</span>
+                                    <span>Registrarse</span>
                                 }
                             </button>
                         </div>
 
-                        <!-- Enlace para registrarse -->
+                        <!-- Volver al Login -->
                         <div class="text-center">
-                            <small class="text-muted">¿No tienes una cuenta?</small>
-                            <a href="/registro" class="text-primary fw-semibold ms-1 small text-decoration-none">Regístrate aquí</a>
+                            <small class="text-muted">¿Ya tienes cuenta?</small>
+                            <a href="/login" class="text-primary fw-semibold ms-1 small text-decoration-none">Inicia sesión</a>
                         </div>
                     </EditForm>
                 </div>
@@ -206,7 +200,7 @@
     .divLogin {
         background: #ffffff;
         border-radius: 16px;
-        padding: 2.5rem 2rem;
+        padding: 2rem 2rem;
         width: 420px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         text-align: center;
@@ -214,17 +208,15 @@
         z-index: 11;
     }
 
-    .user__login--icon {
-        width: 70px;
-        height: 70px;
-        margin: 1rem 0;
+    .user__icon {
+        margin: 0.5rem 0;
     }
 
     .user__text {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 700;
         color: #212529;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .login__button {
@@ -245,90 +237,55 @@
 </style>
 
 @code {
-    private LoginDto loginModel = new();
+    private RegistroModelo registroModel = new();
+    private string confirmarPassword = string.Empty;
     private string mensajeError = string.Empty;
+    private string mensajeExito = string.Empty;
     private bool cargando = false;
     private bool mostrarPassword = false;
 
-    protected override void OnInitialized()
+    private void ToggleMostrarPassword() => mostrarPassword = !mostrarPassword;
+
+    private async Task ProcesarRegistro()
     {
-        loginModel = new LoginDto();
         mensajeError = string.Empty;
-        cargando = false;
-        mostrarPassword = false;
-    }
+        mensajeExito = string.Empty;
 
-    private void ToggleMostrarPassword()
-    {
-        mostrarPassword = !mostrarPassword;
-    }
-
-    private async Task ProcesarLogin()
-    {
-        cargando = true;
-        mensajeError = string.Empty;
-
-        var credenciales = new LoginDto
+        // Validación de coincidencia de contraseñas
+        if (registroModel.Password != confirmarPassword)
         {
-            Email = loginModel.Email,
-            Password = loginModel.Password
-        };
+            mensajeError = "Las contraseñas no coinciden.";
+            return;
+        }
 
-        // Limpia el modelo inmediatamente en memoria
-        loginModel.Email = string.Empty;
-        loginModel.Password = string.Empty;
+        cargando = true;
 
         try
         {
-            var response = await Http.PostAsJsonAsync("api/auth/login", credenciales);
+            var payload = new
+            {
+                Email = registroModel.Email,
+                Password = registroModel.Password,
+                Rol = "Residente" // Todo usuario nuevo que se registre toma rol Residente
+            };
+
+            var response = await Http.PostAsJsonAsync("api/auth/registro", payload);
 
             if (response.IsSuccessStatusCode)
             {
-                var resultado = await response.Content.ReadFromJsonAsync<RespuestaAuthDto>();
-
-                if (resultado != null && resultado.Exito)
-                {
-                    // Guardamos la sesión
-                    await JS.InvokeVoidAsync("sessionStorage.setItem", "token", resultado.Token);
-                    await JS.InvokeVoidAsync("sessionStorage.setItem", "rolUsuario", resultado.Rol);
-                    await JS.InvokeVoidAsync("sessionStorage.setItem", "nombreUsuario", resultado.NombreCompleto);
-                    await JS.InvokeVoidAsync("sessionStorage.setItem", "correoUsuario", resultado.Correo);
-
-                    if (string.Equals(resultado.Rol, "Residente", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(resultado.Rol, "Solicitante", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Navigation.NavigateTo("/mis-solicitudes");
-                    }
-                    else
-                    {
-                        Navigation.NavigateTo("/dashboard");
-                    }
-                }
-                else
-                {
-                    mensajeError = resultado?.Mensaje ?? "Credenciales inválidas.";
-                }
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                mensajeError = "Correo o contraseña incorrectos.";
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                mensajeError = "No se encontró el endpoint /api/auth/login en el backend (404).";
+                mensajeExito = "¡Cuenta creada exitosamente! Redirigiendo al login...";
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/login");
             }
             else
             {
-                mensajeError = $"Error del servidor: {(int)response.StatusCode} {response.ReasonPhrase}";
+                var errorObj = await response.Content.ReadFromJsonAsync<RespuestaErrorDto>();
+                mensajeError = errorObj?.Mensaje ?? "No se pudo completar el registro.";
             }
-        }
-        catch (HttpRequestException)
-        {
-            mensajeError = "No se pudo conectar con el servidor Backend. Verifica que la API esté corriendo.";
         }
         catch (Exception ex)
         {
-            mensajeError = $"Error inesperado: {ex.Message}";
+            mensajeError = $"Error al conectar con el servidor: {ex.Message}";
         }
         finally
         {
@@ -336,19 +293,15 @@
         }
     }
 
-    public class LoginDto
+    public class RegistroModelo
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
 
-    public class RespuestaAuthDto
+    public class RespuestaErrorDto
     {
         public bool Exito { get; set; }
-        public string Token { get; set; } = string.Empty;
         public string Mensaje { get; set; } = string.Empty;
-        public string Rol { get; set; } = string.Empty;
-        public string NombreCompleto { get; set; } = string.Empty;
-        public string Correo { get; set; } = string.Empty;
     }
 }

@@ -1,0 +1,328 @@
+﻿@page "/mis-solicitudes"
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject HttpClient Http
+
+<PageTitle>Expediente Digital del Residente | DGM</PageTitle>
+
+<div class="container-fluid px-2 px-md-4 py-3">
+
+    <!-- ========================================================================= -->
+    <!-- 1. ENCABEZADO Y PERFIL DEL EXPEDIENTE                                      -->
+    <!-- ========================================================================= -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary px-3 py-2 rounded-pill fs-6" style="background-color: #003876 !important;">
+                    #@expediente.NumeroRadicado
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-shield-check me-1"></i>Expediente Activo
+                </span>
+            </div>
+            <h3 class="fw-bold text-dark mt-2 mb-1">
+                @expediente.TipoResidencia
+            </h3>
+            <p class="text-muted small mb-0">
+                Titular: <strong>@expediente.NombreTitular</strong> | Pasaporte: <strong>@expediente.NumeroPasaporte</strong> | País de Origen: <strong>@expediente.PaisOrigen</strong>
+            </p>
+        </div>
+
+        <!-- Acciones Rápidas del Residente -->
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                    @onclick="DescargarCertificacion">
+                <i class="bi bi-file-earmark-pdf-fill text-danger fs-6"></i>
+                <span class="fw-semibold">Descargar Constancia</span>
+            </button>
+            <button class="btn text-white btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm"
+                    style="background-color: #003876;"
+                    @onclick='() => AbrirModalTramite("Renovación")'>
+                <i class="bi bi-arrow-repeat fs-6"></i>
+                <span class="fw-semibold">Solicitar Renovación</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 2. LÍNEA DE TIEMPO DEL TRÁMITE (FASE DE EVALUACIÓN)                       -->
+    <!-- ========================================================================= -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
+        <h5 class="fw-bold mb-4" style="color: #003876;">
+            <i class="bi bi-diagram-3-fill me-2"></i>Estado del Trámite Migratorio
+        </h5>
+
+        <div class="row text-center g-3">
+            <!-- Paso 1 -->
+            <div class="col-12 col-md-3">
+                <div class="p-3 rounded-4 border step-card @(expediente.PasoActual >= 1 ? "step-completed" : "step-pending")">
+                    <div class="step-icon mb-2">
+                        <i class="bi bi-file-earmark-check fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">1. Radicación</h6>
+                    <small class="text-muted d-block">Documentos depositados</small>
+                    <span class="badge bg-success mt-2">Completado</span>
+                </div>
+            </div>
+
+            <!-- Paso 2 -->
+            <div class="col-12 col-md-3">
+                <div class="p-3 rounded-4 border step-card @(expediente.PasoActual >= 2 ? "step-active" : "step-pending")">
+                    <div class="step-icon mb-2">
+                        <i class="bi bi-search fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">2. Evaluación Legal</h6>
+                    <small class="text-muted d-block">Verificación de antecedentes</small>
+                    <span class="badge bg-warning text-dark mt-2">En Proceso</span>
+                </div>
+            </div>
+
+            <!-- Paso 3 -->
+            <div class="col-12 col-md-3">
+                <div class="p-3 rounded-4 border step-card @(expediente.PasoActual >= 3 ? "step-completed" : "step-pending")">
+                    <div class="step-icon mb-2">
+                        <i class="bi bi-check-circle fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">3. Resolución</h6>
+                    <small class="text-muted d-block">Aprobación de residencia</small>
+                    <span class="badge bg-secondary-subtle text-muted mt-2">Pendiente</span>
+                </div>
+            </div>
+
+            <!-- Paso 4 -->
+            <div class="col-12 col-md-3">
+                <div class="p-3 rounded-4 border step-card @(expediente.PasoActual >= 4 ? "step-completed" : "step-pending")">
+                    <div class="step-icon mb-2">
+                        <i class="bi bi-person-badge fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">4. Emisión de Carnet</h6>
+                    <small class="text-muted d-block">Listo para entrega física</small>
+                    <span class="badge bg-secondary-subtle text-muted mt-2">Pendiente</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 3. EXPEDIENTE DE DOCUMENTOS Y REQUISITOS                                 -->
+    <!-- ========================================================================= -->
+    <div class="row g-4">
+        <!-- Requisitos Depositados -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #003876;">
+                            <i class="bi bi-folder-symlink-fill me-2"></i>Documentos Depositados
+                        </h5>
+                        <small class="text-muted">Expediente digital verificado por oficiales de la DGM</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" @onclick="AbrirModalSubirDoc">
+                        <i class="bi bi-upload me-1"></i> Subir Anexo
+                    </button>
+                </div>
+
+                <div class="list-group list-group-flush mt-2">
+                    @foreach (var doc in expediente.Documentos)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-3 bg-light text-primary border">
+                                    <i class="bi @doc.Icono fs-4"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-dark">@doc.Nombre</div>
+                                    <small class="text-muted">Actualizado el: @doc.FechaSubida.ToString("dd/MM/yyyy")</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge @ObtenerClaseDoc(doc.Estado)">@doc.Estado</span>
+                                <button class="btn btn-sm btn-light border rounded-circle" title="Ver documento">
+                                    <i class="bi bi-eye text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha de Vigencia y Servicios -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4 h-100">
+                <h5 class="fw-bold mb-3" style="color: #003876;">
+                    <i class="bi bi-info-circle-fill me-2"></i>Detalle de Vigencia
+                </h5>
+
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <small class="text-muted d-block fw-semibold">FECHA DE REGISTRO</small>
+                    <span class="fw-bold text-dark">@expediente.FechaEmision.ToString("dd MMMM, yyyy")</span>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <small class="text-muted d-block fw-semibold">PRÓXIMA RENOVACIÓN ESTIMADA</small>
+                    <span class="fw-bold text-dark">@expediente.FechaVencimiento.ToString("dd MMMM, yyyy")</span>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <small class="text-muted d-block fw-semibold">SEDE DE ATENCIÓN ASIGNADA</small>
+                    <span class="fw-bold text-dark">Sede Central DGM - Santo Domingo</span>
+                </div>
+
+                <hr class="opacity-25 my-2" />
+
+                <h6 class="fw-bold text-dark small mb-2">Servicios Disponibles:</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-secondary btn-sm text-start py-2 px-3 rounded-3" @onclick='() => AbrirModalTramite("Renovación")'>
+                        <i class="bi bi-award me-2 text-primary"></i>Solicitar Cambio a Residencia Definitiva
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm text-start py-2 px-3 rounded-3" @onclick='() => AbrirModalTramite("Renovación")'>
+                        <i class="bi bi-airplane me-2 text-primary"></i>Solicitar Permiso de Reingreso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4. MODAL PARA SUBIR DOCUMENTOS ANEXOS                                     -->
+<!-- ========================================================================= -->
+@if (mostrarModalDoc)
+{
+    <div class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header text-white rounded-top-4 py-3 px-4" style="background: #003876;">
+                    <h5 class="modal-title fw-bold text-white mb-0">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>Adjuntar Documento al Expediente
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => mostrarModalDoc = false"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">TIPO DE DOCUMENTO</label>
+                        <select class="form-select" @bind="tipoDocSeleccionado">
+                            <option value="Récord Policial Actualizado">Récord Policial Actualizado</option>
+                            <option value="Certificado Médico">Certificado Médico</option>
+                            <option value="Contrato de Trabajo / Carta de Garantía">Contrato de Trabajo / Carta de Garantía</option>
+                            <option value="Renovación de Pasaporte">Copia de Pasaporte Renovado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">SELECCIONAR ARCHIVO (PDF o Imagen)</label>
+                        <input type="file" class="form-control" />
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                        <button class="btn btn-outline-secondary px-4" @onclick="() => mostrarModalDoc = false">Cancelar</button>
+                        <button class="btn btn-primary px-4" style="background-color: #003876;" @onclick="GuardarDocumento">Subir Anexo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .step-card {
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .step-completed {
+        background-color: #F0FDF4;
+        border-color: #BBF7D0 !important;
+        color: #15803D;
+    }
+    .step-active {
+        background-color: #FEFCE8;
+        border-color: #FEF08A !important;
+        color: #A16207;
+        box-shadow: 0 4px 12px rgba(234, 179, 8, 0.15);
+    }
+    .step-pending {
+        background-color: #F8FAFC;
+        border-color: #E2E8F0 !important;
+        color: #94A3B8;
+    }
+    .modal-backdrop-custom {
+        background-color: rgba(0, 30, 60, 0.55);
+        backdrop-filter: blur(2px);
+    }
+</style>
+
+@code {
+    private bool mostrarModalDoc = false;
+    private string tipoDocSeleccionado = "Récord Policial Actualizado";
+
+    // Modelo de datos del Expediente Único
+    private ExpedienteResidenteDto expediente = new()
+    {
+        NumeroRadicado = "EXP-2026-0891",
+        TipoResidencia = "Residencia Temporal por Trabajo (RT-3)",
+        NombreTitular = "Elys Camila Batista Encarnacion",
+        NumeroPasaporte = "P0948214",
+        PaisOrigen = "Colombia",
+        PasoActual = 2, // 1: Radicado, 2: Evaluación, 3: Aprobado, 4: Listo entrega
+        FechaEmision = new DateTime(2026, 1, 15),
+        FechaVencimiento = new DateTime(2027, 1, 15),
+        Documentos = new List<DocumentoAdjuntoDto>
+        {
+            new() { Nombre = "Copia Certificada de Pasaporte", Icono = "bi-passport", FechaSubida = new DateTime(2026, 1, 15), Estado = "Aprobado" },
+            new() { Nombre = "Certificado de No Antecedentes Penales", Icono = "bi-shield-check", FechaSubida = new DateTime(2026, 1, 15), Estado = "Aprobado" },
+            new() { Nombre = "Examen Médico de Laboratorio", Icono = "bi-hospital", FechaSubida = new DateTime(2026, 2, 01), Estado = "En Revisión" },
+            new() { Nombre = "Contrato de Trabajo Registrado", Icono = "bi-briefcase", FechaSubida = new DateTime(2026, 1, 15), Estado = "Aprobado" }
+        }
+    };
+
+    private string ObtenerClaseDoc(string estado) => estado switch
+    {
+        "Aprobado" => "bg-success-subtle text-success border border-success-subtle",
+        "En Revisión" => "bg-warning-subtle text-warning border border-warning-subtle",
+        "Rechazado" => "bg-danger-subtle text-danger border border-danger-subtle",
+        _ => "bg-light text-secondary border"
+    };
+
+    private void DescargarCertificacion()
+    {
+        // Descarga o genera el comprobante digital
+    }
+
+    private void AbrirModalSubirDoc() => mostrarModalDoc = true;
+
+    private void GuardarDocumento()
+    {
+        expediente.Documentos.Add(new DocumentoAdjuntoDto
+        {
+            Nombre = tipoDocSeleccionado,
+            Icono = "bi-file-earmark-pdf",
+            FechaSubida = DateTime.Today,
+            Estado = "En Revisión"
+        });
+        mostrarModalDoc = false;
+    }
+
+    private void AbrirModalTramite(string tipoTramite)
+    {
+        // Gestiona trámites secundarios (Renovación, Cambio categoría, Permiso)
+    }
+
+    public class ExpedienteResidenteDto
+    {
+        public string NumeroRadicado { get; set; } = string.Empty;
+        public string TipoResidencia { get; set; } = string.Empty;
+        public string NombreTitular { get; set; } = string.Empty;
+        public string NumeroPasaporte { get; set; } = string.Empty;
+        public string PaisOrigen { get; set; } = string.Empty;
+        public int PasoActual { get; set; }
+        public DateTime FechaEmision { get; set; }
+        public DateTime FechaVencimiento { get; set; }
+        public List<DocumentoAdjuntoDto> Documentos { get; set; } = new();
+    }
+
+    public class DocumentoAdjuntoDto
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public string Icono { get; set; } = string.Empty;
+        public DateTime FechaSubida { get; set; }
+        public string Estado { get; set; } = string.Empty;
+    }
+}
