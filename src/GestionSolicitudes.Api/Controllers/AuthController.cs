@@ -9,27 +9,21 @@ using Microsoft.IdentityModel.Tokens;
 namespace GestionSolicitudes.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")] // Define la ruta base como: api/auth
+[Route("api/[controller]")]
 public class AuthController(
     UserManager<IdentityUser> userManager,
     RoleManager<IdentityRole> roleManager,
     IConfiguration configuration) : ControllerBase
 {
-    // Manejador de usuarios de ASP.NET Identity (crear, buscar, validar contraseñas)
     private readonly UserManager<IdentityUser> _userManager = userManager;
-
-    // Manejador de roles de Identity (crear, validar roles)
     private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-
-    // Permite leer las claves de configuración de appsettings.json (JWT Key, Issuer, Audience)
     private readonly IConfiguration _configuration = configuration;
 
     // POST: api/auth/login
-    // Función: Valida correo y contraseña, extrae el rol y devuelve el token JWT con los datos de sesión.
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        // 1. Busca si el correo existe en la base de datos
+        // 1. Busca el usuario por correo
         var usuario = await _userManager.FindByEmailAsync(dto.Email);
         if (usuario == null)
         {
@@ -40,7 +34,7 @@ public class AuthController(
             });
         }
 
-        // 2. Comprueba si el hash de la contraseña coincide
+        // 2. Valida la contraseña
         var passwordValido = await _userManager.CheckPasswordAsync(usuario, dto.Password);
         if (!passwordValido)
         {
@@ -51,14 +45,13 @@ public class AuthController(
             });
         }
 
-        // 3. Obtiene el rol asignado al usuario
+        // 3. Obtiene el rol asignado
         var roles = await _userManager.GetRolesAsync(usuario);
-        var rolPrincipal = roles.FirstOrDefault() ?? "Solicitante";
+        var rolPrincipal = roles.FirstOrDefault() ?? "Residente";
 
         // 4. Genera el token JWT
         var token = GenerarTokenJwt(usuario, rolPrincipal);
 
-        // 5. Retorna la respuesta con éxito y datos del usuario
         return Ok(new RespuestaAuthDto
         {
             Exito = true,
@@ -71,22 +64,22 @@ public class AuthController(
     }
 
     // POST: api/auth/registro
-    // Función: Registra una nueva cuenta de usuario y le asigna su rol.
+    // Nota: El registro público siempre crea usuarios con rol 'Residente'
     [HttpPost("registro")]
     public async Task<IActionResult> Registrar([FromBody] RegistroDto dto)
     {
-        // 1. Valida que el correo no esté registrado previamente
+        // 1. Verifica si ya existe
         var usuarioExiste = await _userManager.FindByEmailAsync(dto.Email);
         if (usuarioExiste != null)
         {
             return BadRequest(new RespuestaAuthDto
             {
                 Exito = false,
-                Mensaje = "El correo ya está registrado."
+                Mensaje = "El correo electrónico ya se encuentra registrado."
             });
         }
 
-        // 2. Crea el objeto IdentityUser
+        // 2. Crea el nuevo IdentityUser
         var nuevoUsuario = new IdentityUser
         {
             UserName = dto.Email,
@@ -94,7 +87,6 @@ public class AuthController(
             EmailConfirmed = true
         };
 
-        // 3. Guarda el usuario en la BD con su contraseña hasheada
         var resultado = await _userManager.CreateAsync(nuevoUsuario, dto.Password);
         if (!resultado.Succeeded)
         {
@@ -106,31 +98,27 @@ public class AuthController(
             });
         }
 
-        // 4. Asigna el rol especificado al usuario creado
-        if (!string.IsNullOrWhiteSpace(dto.Rol))
+        // 3. Asegura y asigna el rol 'Residente'
+        const string rolAsignado = "Residente";
+        if (!await _roleManager.RoleExistsAsync(rolAsignado))
         {
-            if (!await _roleManager.RoleExistsAsync(dto.Rol))
-            {
-                await _roleManager.CreateAsync(new IdentityRole(dto.Rol));
-            }
-            await _userManager.AddToRoleAsync(nuevoUsuario, dto.Rol);
+            await _roleManager.CreateAsync(new IdentityRole(rolAsignado));
         }
+        await _userManager.AddToRoleAsync(nuevoUsuario, rolAsignado);
 
         return Ok(new RespuestaAuthDto
         {
             Exito = true,
-            Mensaje = "Usuario creado exitosamente."
+            Mensaje = "Cuenta creada exitosamente como Residente."
         });
     }
 
-    // Función privada: Construye y firma el token JWT con los claims del usuario
     private string GenerarTokenJwt(IdentityUser usuario, string rol)
     {
         var jwtKey = _configuration["Jwt:Key"] ?? "ClaveSuperSecretaYLargaParaFirmarLosTokensJWT2026!";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Claims: Datos embebidos dentro del token
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.Id),

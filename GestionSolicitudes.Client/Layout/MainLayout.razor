@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@implements IDisposable
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="d-flex min-vh-100 w-100" style="background-color: #F8F9FA;">
     <!-- ========================================================= -->
@@ -85,7 +87,14 @@
     {
         if (firstRender)
         {
-            // Lee los datos guardados en el inicio de sesión
+            await CargarDatosSesion();
+        }
+    }
+
+    private async Task CargarDatosSesion()
+    {
+        try
+        {
             var nombre = await JS.InvokeAsync<string>("sessionStorage.getItem", "nombreUsuario");
             var correo = await JS.InvokeAsync<string>("sessionStorage.getItem", "correoUsuario");
             var rol = await JS.InvokeAsync<string>("sessionStorage.getItem", "rolUsuario");
@@ -94,14 +103,33 @@
             correoUsuario = !string.IsNullOrWhiteSpace(correo) ? correo : "";
             rolUsuario = !string.IsNullOrWhiteSpace(rol) ? rol : "Sin Rol";
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
+        catch
+        {
+            // Ignora errores si JSInterop se llama antes de estar listo en prerender
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        await CargarDatosSesion();
     }
 
     private string ObtenerInicial(string nombre)
     {
         if (string.IsNullOrWhiteSpace(nombre) || nombre == "Cargando...") return "U";
         return nombre.Trim().Substring(0, 1).ToUpper();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 
     private void ToggleMenuUsuario() => mostrarMenuUsuario = !mostrarMenuUsuario;
